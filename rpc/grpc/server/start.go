@@ -111,7 +111,6 @@ func (s *starter) setOptions(ctx context.Context) (fn, error) {
 	s.opts.serverOptions = []grpc.ServerOption{
 		grpc.UnaryInterceptor(ui.Intercept),
 		grpc.StreamInterceptor(si.Intercept),
-		// The trace logs are overly verbose for local testing.
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.KeepaliveParams(defaultKeepalive),
 		grpc.MaxConcurrentStreams(100),          // Limit concurrent streams
