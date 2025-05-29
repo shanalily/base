@@ -108,24 +108,17 @@ func (s *starter) setOptions(ctx context.Context) (fn, error) {
 	}
 
 	// Setup a base for the options that gets modified.
-	s.opts = startOptions{
-		serverOptions: []grpc.ServerOption{
-			grpc.UnaryInterceptor(ui.Intercept),
-			grpc.StreamInterceptor(si.Intercept),
-			grpc.StatsHandler(otelgrpc.NewServerHandler()),
-			grpc.KeepaliveParams(defaultKeepalive),
-			grpc.MaxConcurrentStreams(100),          // Limit concurrent streams
-			grpc.ConnectionTimeout(5 * time.Second), // Timeout for new connections
-		},
-		gwDial: []grpc.DialOption{grpc.WithBlock()},
+	s.opts.serverOptions = []grpc.ServerOption{
+		grpc.UnaryInterceptor(ui.Intercept),
+		grpc.StreamInterceptor(si.Intercept),
+		// The trace logs are overly verbose for local testing.
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.KeepaliveParams(defaultKeepalive),
+		grpc.MaxConcurrentStreams(100),          // Limit concurrent streams
+		grpc.ConnectionTimeout(5 * time.Second), // Timeout for new connections
 	}
+	s.opts.gwDial = []grpc.DialOption{grpc.WithBlock()}
 
-	for _, o := range s.options {
-		s.opts, err = o(s.opts)
-		if err != nil {
-			return nil, err
-		}
-	}
 	if len(s.opts.certs) == 0 {
 		s.opts.serverOptions = append(s.opts.serverOptions, grpc.Creds(insecure.NewCredentials()))
 	}
