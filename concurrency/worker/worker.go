@@ -547,6 +547,7 @@ func (p *Pool) Sub(ctx context.Context, name string) *Pool {
 
 	pool := &Pool{
 		queue:      p.queue,
+		name:       name,
 		opts:       p.opts,
 		metrics:    pm,
 		wg:         sync.WaitGroup{},
